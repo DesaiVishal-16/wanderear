@@ -1,0 +1,4 @@
+include README.md LICENSE
+include data/field_guide/*.json
+recursive-include web *
+recursive-include docs *.md

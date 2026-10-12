@@ -1,0 +1,32 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.eggs/
+build/
+dist/
+.venv/
+venv/
+
+# Tooling / coverage
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+.coverage
+.coverage.*
+htmlcov/
+*.log
+
+# Local WanderEar data & secrets
+.env
+*.wav
+*.flac
+*.png
+!web/**/*.png
+data/models/
+
+# Local planning docs are not published
+docs/
+
+# OS
+.DS_Store

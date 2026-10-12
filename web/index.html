@@ -1,0 +1,203 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#eaf3e2">
+  <meta name="description" content="WanderEar: record a moment outside and read back a sound postcard. Local-first, open-weight AI.">
+  <title>WanderEar · a postcard from a moment outside</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="grain" aria-hidden="true"></div>
+
+  <header class="site-header">
+    <div class="header-inner">
+      <a class="brand" href="./" aria-label="WanderEar home">
+        <span class="brand-mark" aria-hidden="true">
+          <!-- lucide: leaf -->
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M11 20A7 7 0 0 1 9.8 6.1C15.5 5 17 4.48 19 2c1 2 2 4.18 2 8 0 5.5-4.78 10-10 10Z"/>
+            <path d="M2 21c0-3 1.85-5.36 5.08-6C9.5 14.52 12 13 13 12"/>
+          </svg>
+        </span>
+        <span class="brand-text">
+          <strong>WanderEar</strong>
+          <small>field notes for your ears</small>
+        </span>
+      </a>
+      <nav class="header-nav" aria-label="Primary">
+        <button id="settings-btn" class="icon-btn" type="button" aria-haspopup="dialog" aria-controls="settings">
+          <!-- lucide: settings -->
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/>
+            <circle cx="12" cy="12" r="3"/>
+          </svg>
+          <span class="icon-btn-label">Settings</span>
+        </button>
+      </nav>
+    </div>
+  </header>
+
+  <main>
+    <section class="hero" aria-label="Capture a soundscape">
+      <div class="hero-copy">
+        <p class="eyebrow">Local-first · open-weight AI</p>
+        <h1>Press record.<br>Read the forest back.</h1>
+        <p class="lede">
+          WanderEar listens to the world around you and writes a
+          <em>sound postcard</em>: what you're hearing, in words.
+          Everything runs on your machine. No signal required.
+        </p>
+      </div>
+
+      <div class="capture card-surface">
+        <div class="buttons">
+          <button id="record" class="btn primary" type="button">
+            <span class="dot" aria-hidden="true"></span><span id="record-label">Record</span>
+          </button>
+          <button id="upload-btn" class="btn" type="button">
+            <!-- lucide: upload -->
+            <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+              <polyline points="17 8 12 3 7 8"/>
+              <line x1="12" x2="12" y1="3" y2="15"/>
+            </svg>
+            Upload a clip
+          </button>
+          <input id="file" type="file" accept="audio/*" hidden>
+        </div>
+
+        <div id="recorder" class="recorder" hidden>
+          <div class="wave" aria-hidden="true"><span></span><span></span><span></span><span></span><span></span><span></span><span></span></div>
+          <div id="timer" class="timer">0.0s</div>
+        </div>
+        <p id="hint" class="hint" role="status" aria-live="polite"></p>
+      </div>
+    </section>
+
+    <section id="similar" class="similar card-surface" hidden aria-label="Similar sounds">
+      <div class="similar-head">
+        <h2>
+          <!-- lucide: search -->
+          <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/>
+          </svg>
+          Sounds like this
+        </h2>
+        <button id="similar-close" class="btn ghost small" type="button">close</button>
+      </div>
+      <ol id="similar-list"></ol>
+    </section>
+
+    <section class="feed" aria-label="Postcards">
+      <div class="feed-head">
+        <h2>Your postcards</h2>
+        <span id="count" class="count"></span>
+      </div>
+      <div id="cards"></div>
+
+      <div id="empty" class="empty">
+        <span class="empty-mark" aria-hidden="true">
+          <!-- lucide: audio-lines -->
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M2 10v3"/><path d="M6 6v11"/><path d="M10 3v18"/>
+            <path d="M14 8v7"/><path d="M18 5v13"/><path d="M22 10v3"/>
+          </svg>
+        </span>
+        <p class="empty-title">Nothing here yet</p>
+        <p class="empty-sub">Record a moment outside or upload a clip to make your first postcard.</p>
+      </div>
+    </section>
+  </main>
+
+  <template id="card-template">
+    <article class="card">
+      <div class="card-media">
+        <img class="spectrogram" alt="">
+        <audio controls preload="none"></audio>
+      </div>
+      <div class="card-body">
+        <h3 class="title"></h3>
+        <p class="story"></p>
+        <div class="chips"></div>
+        <div class="card-foot">
+          <span class="meta"></span>
+          <button class="btn ghost small similar-btn" type="button">
+            <!-- lucide: search -->
+            <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/>
+            </svg>
+            Find similar
+          </button>
+        </div>
+      </div>
+    </article>
+  </template>
+
+  <dialog id="settings" class="modal" aria-labelledby="settings-title">
+    <form method="dialog" class="modal-card">
+      <div class="modal-head">
+        <h2 id="settings-title">Advanced settings</h2>
+        <button class="modal-x" value="close" type="submit" aria-label="Close settings">
+          <!-- lucide: x -->
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M18 6 6 18"/><path d="m6 6 12 12"/>
+          </svg>
+        </button>
+      </div>
+      <p class="advanced-note">
+        A recording becomes a postcard in two steps. Both are already set to
+        <strong>auto</strong>. Leave them there unless you want to experiment.
+      </p>
+      <div class="options">
+        <div class="field">
+          <span class="field-label" id="classifier-label">1 · Ears: which sounds are heard</span>
+          <div class="select" data-select>
+            <button type="button" class="select-trigger" aria-haspopup="listbox" aria-expanded="false" aria-labelledby="classifier-label">
+              <span class="select-value"></span>
+              <svg class="select-caret" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg>
+            </button>
+            <ul class="select-menu" role="listbox" aria-labelledby="classifier-label" hidden></ul>
+            <select id="classifier" hidden>
+              <option value="auto">auto (best available)</option>
+              <option value="passthrough">passthrough (heuristic)</option>
+              <option value="yamnet">YAMNet</option>
+              <option value="clap">CLAP (zero-shot)</option>
+              <option value="panns">PANNs</option>
+            </select>
+          </div>
+          <p class="field-help">
+            Listens to your clip and identifies what's in it: birds, wind, rain, voices.
+            <strong>auto</strong> uses the best detector that's installed.
+          </p>
+        </div>
+        <div class="field">
+          <span class="field-label" id="narrator-label">2 · Voice: how it's written</span>
+          <div class="select" data-select>
+            <button type="button" class="select-trigger" aria-haspopup="listbox" aria-expanded="false" aria-labelledby="narrator-label">
+              <span class="select-value"></span>
+              <svg class="select-caret" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg>
+            </button>
+            <ul class="select-menu" role="listbox" aria-labelledby="narrator-label" hidden></ul>
+            <select id="narrator" hidden>
+              <option value="auto">auto (Gemma if available)</option>
+              <option value="template">template (offline)</option>
+              <option value="gemma">Gemma (Ollama)</option>
+            </select>
+          </div>
+          <p class="field-help">
+            Turns those sounds into your postcard story. <strong>auto</strong> uses Gemma
+            when the local model is running, otherwise the built-in template.
+          </p>
+        </div>
+      </div>
+      <div class="modal-foot">
+        <button class="btn primary small" value="done" type="submit">Done</button>
+      </div>
+    </form>
+  </dialog>
+
+  <script src="app.js"></script>
+</body>
+</html>

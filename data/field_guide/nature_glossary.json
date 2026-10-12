@@ -1,0 +1,38 @@
+{
+  "Wind": {
+    "blurb": "wind moving through the leaves",
+    "seasonal_note": "louder in autumn as leaves dry out"
+  },
+  "Rain": {
+    "blurb": "rain falling steadily",
+    "seasonal_note": "monsoon and summer storms"
+  },
+  "Leaves": {
+    "blurb": "dry leaves rustling and shifting",
+    "seasonal_note": "peak in autumn"
+  },
+  "Stream": {
+    "blurb": "a stream running over stones",
+    "seasonal_note": "louder after rain or snowmelt"
+  },
+  "Birdsong": {
+    "blurb": "birds calling and answering",
+    "seasonal_note": "loudest at dawn in spring breeding season"
+  },
+  "Insects": {
+    "blurb": "a chorus of insects",
+    "seasonal_note": "cicadas and crickets dominate late summer and autumn"
+  },
+  "Frogs": {
+    "blurb": "frogs calling from the water's edge",
+    "seasonal_note": "peak during the first warm rains"
+  },
+  "Silence": {
+    "blurb": "almost nothing at all, just the hush around you",
+    "seasonal_note": "winter or deep night"
+  },
+  "Ambient hum": {
+    "blurb": "a low, steady ambience that is hard to place",
+    "seasonal_note": "often wind, distant traffic, or your own breathing"
+  }
+}
