@@ -1,0 +1,52 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "wanderear"
+version = "0.1.0"
+description = "Shazam for the wild — offline soundscape identification and postcards"
+readme = "README.md"
+requires-python = ">=3.10"
+license = { text = "MIT" }
+authors = [{ name = "WanderEar contributors" }]
+keywords = ["audio", "soundscape", "bioacoustics", "offline", "open-weights", "gemma"]
+dependencies = [
+    "numpy>=1.24",
+]
+
+[project.optional-dependencies]
+audio = ["sounddevice>=0.4", "scipy>=1.10"]
+plot = ["matplotlib>=3.7"]
+server = ["matplotlib>=3.7"]
+yamnet = ["onnxruntime>=1.16"]
+clap = ["transformers>=4.40", "torch>=2.2"]
+panns = ["panns-inference>=0.1"]
+cloud = ["pymongo>=4.6", "sentry-sdk>=1.40"]
+all = [
+    "sounddevice>=0.4", "scipy>=1.10", "matplotlib>=3.7", "onnxruntime>=1.16",
+    "pymongo>=4.6", "sentry-sdk>=1.40",
+]
+dev = ["pytest>=7.4", "ruff>=0.4", "pre-commit>=3.6"]
+
+[project.scripts]
+wanderear = "wanderear.cli:main"
+
+[project.urls]
+Homepage = "https://github.com/DesaiVishal-16/wanderear"
+Repository = "https://github.com/DesaiVishal-16/wanderear"
+Issues = "https://github.com/DesaiVishal-16/wanderear/issues"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py310"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "B"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-q"

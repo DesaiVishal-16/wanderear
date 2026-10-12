@@ -1,0 +1,1 @@
+"""Optional classifier backends. Import is lazy; missing deps fall back."""
