@@ -143,71 +143,75 @@ wanderear/
 └── tests/
 ```
 
-## Deploy the hosted gallery
+## How the AI runs (important)
 
-The optional gallery (what `wanderear sync` pushes to) is a single Docker
-service built from the root [`Dockerfile`](Dockerfile).
+The model **never runs on the host you deploy to.** WanderEar is local-first:
+the AI lives on the device doing the recording.
 
-```bash
-# run it locally in Docker
-docker compose -f deploy/docker-compose.yml up --build   # → http://127.0.0.1:8000
-
-# or expose your local gallery on a public URL (no account, no card)
-make serve      # terminal 1
-make tunnel     # terminal 2 → prints a public https:// URL
+```
+   YOUR DEVICE (offline)                        HOSTED GALLERY (optional)
+   ─────────────────────                        ─────────────────────────
+   🎙 record → classifier → Gemma/Ollama  ──►   stores & displays finished
+      (the actual AI)      writes postcard       postcards (text + wav + png)
+             │                                        ▲
+             └──────────── wanderear sync ────────────┘
 ```
 
-Free, **no-credit-card** hosts: **Koyeb** (no sleep), **Back4app Containers**,
-**SnapDeploy**. Render needs a card for web services (static sites are card-free)
-and Hugging Face Docker Spaces became paid in July 2026.
+- Gemma runs through **Ollama on your laptop/phone** (`ollama pull gemma3:4b`).
+  That is where classification and narration happen, with no network.
+- `wanderear sync <url>` then uploads the **already-written postcards** to the
+  gallery. The gallery is a viewer/mirror, never the source of truth.
+- Render's free instance (512 MB, no GPU) **cannot** run Gemma. If someone hits
+  `/api/analyze` on the hosted gallery, it falls back to the small `passthrough`
+  classifier + `template` narrator — still works, just not as pretty.
+- To run the model *in the cloud* for weak devices, that's the optional
+  **DigitalOcean GPU Droplet** path (see `docs/SERVICES.md`): host Ollama + Gemma
+  there and point `OLLAMA_URL` at it. It needs a GPU host, not Render.
 
-### Deploy free without a card
+## Deploy the hosted gallery (Render — the hackathon partner service)
 
-The root [`Dockerfile`](Dockerfile) works on any container host. It binds
-`0.0.0.0` and follows the platform's `PORT` env var.
+Render's **free web service needs no credit card.** If you were asked for a
+card, it's because the Blueprint was set to a *paid* plan with a persistent
+disk. That's now fixed: [`render.yaml`](render.yaml) uses `plan: free`.
 
-**Koyeb — free, no sleep, usually no card**
+**Blueprint (recommended)**
+1. <https://dashboard.render.com/blueprints> → **New Blueprint Instance**.
+2. Pick `DesaiVishal-16/wanderear` → Render detects `render.yaml` →
+   `wanderear-gallery`.
+3. Optional: set `WANDEREAR_SYNC_TOKEN` to lock the write endpoints.
+4. **Apply** → `https://wanderear-gallery.onrender.com`.
 
-1. Sign up at https://app.koyeb.com with GitHub.
-2. **Create Service → GitHub** → pick `DesaiVishal-16/wanderear`.
-3. Builder: **Dockerfile** (auto-detected at the repo root).
-4. Instance: the free instance (Frankfurt or Washington, D.C.).
-5. Port **8000**, health check path `/healthz`.
-6. Optional secret `WANDEREAR_SYNC_TOKEN` to lock the write endpoints.
-7. Deploy → `https://<app>-<org>.koyeb.app`.
-
-```bash
-curl https://<app>-<org>.koyeb.app/healthz
-WANDEREAR_SYNC_TOKEN=<secret> wanderear sync https://<app>-<org>.koyeb.app
-```
-
-**Back4app Containers — free, explicitly no card**
-
-1. Sign up at https://www.back4app.com and install the *Back4app Containers*
-   GitHub app for `wanderear`.
-2. **Create app → Containers**: branch `main`, root `/`, autodeploy on.
-3. Env: `HOST=0.0.0.0`, `PORT=8000`, optional `WANDEREAR_SYNC_TOKEN`.
-4. Deploy → `https://<app>-<id>.b4a.run`.
-
-**Local + tunnel — instant, zero accounts**
+**Or a normal web service (manual)**
+1. Dashboard → **New → Web Service** → connect the repo.
+2. Runtime **Docker**, Dockerfile path `./Dockerfile`.
+3. **Compute plan: Free** (this is the step that avoids the card prompt).
+4. Add env var `HOST=0.0.0.0` (and optional `WANDEREAR_SYNC_TOKEN`).
+5. Deploy.
 
 ```bash
-make serve      # terminal 1 → http://127.0.0.1:8000
-make tunnel     # terminal 2 → prints a public https:// URL
+curl https://<app>.onrender.com/healthz
+WANDEREAR_SYNC_TOKEN=<secret> wanderear sync https://<app>.onrender.com
 ```
 
-`scripts/tunnel.sh` uses `cloudflared` if installed, otherwise a free
-`localhost.run` SSH tunnel. The URL lives while your machine and the tunnel do.
+Free Render services spin down after 15 min idle (~1 min cold start) and have an
+**ephemeral** filesystem, so postcards reset on redeploy. For durable postcards,
+point `WANDEREAR_MONGO_URI` at a free **MongoDB Atlas** cluster (also a partner
+service, no card) — [`src/wanderear/atlas.py`](src/wanderear/atlas.py).
 
-**Render (needs a card on file)**
+### Other free hosts (not hackathon partners, but useful for a live demo)
 
-`render.yaml` is a Blueprint with a persistent disk: Dashboard → **New →
-Blueprint** → pick the repo → Apply. Free tier is ephemeral; `plan: starter`
-supports the disk at `/data`.
+The root [`Dockerfile`](Dockerfile) runs on any container host; it binds
+`0.0.0.0` and follows the platform's `PORT`.
 
-> Free hosts use ephemeral storage, so postcards reset on redeploy. For durable
-> postcards, point `WANDEREAR_MONGO_URI` at a free MongoDB Atlas cluster (no
-> card) — see [`src/wanderear/atlas.py`](src/wanderear/atlas.py).
+- **Koyeb / Back4app Containers / SnapDeploy** — connect the repo, Dockerfile at
+  root, port 8000, health path `/healthz`.
+- **Local + tunnel (zero accounts):**
+  ```bash
+  make serve      # terminal 1 → http://127.0.0.1:8000
+  make tunnel     # terminal 2 → prints a public https:// URL
+  ```
+  `scripts/tunnel.sh` uses `cloudflared` if installed, else a free
+  `localhost.run` SSH tunnel.
 
 ## Docs
 - [Architecture](docs/ARCHITECTURE.md)

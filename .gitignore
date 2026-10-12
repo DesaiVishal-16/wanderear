@@ -18,7 +18,6 @@ htmlcov/
 *.log
 
 # Local WanderEar data & secrets
-.env
 *.wav
 *.flac
 *.png
@@ -34,3 +33,5 @@ DEPLOY.md
 
 # OS
 .DS_Store
+config.bat
+node_modules
