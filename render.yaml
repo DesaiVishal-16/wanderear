@@ -3,16 +3,20 @@
 # Deploy: Render Dashboard → New → Blueprint → pick this repo. Render reads
 # this file from the repository root and provisions the gallery below.
 #
-# Postcards are stored on a persistent disk mounted at /data, so they survive
-# redeploys and restarts. The free plan does not support disks; switch
-# `plan: starter` to `plan: free` and delete the `disk:` block only if you are
-# fine with ephemeral storage (the gallery resets on every deploy).
+# This uses Render's FREE web service, which does NOT require a credit card.
+# (A card is only requested if you pick a paid compute plan or attach a disk.)
+# Free services spin down after 15 min idle and take ~1 min to wake; the
+# filesystem is ephemeral, so postcards reset on redeploy/restart. For durable
+# postcards, set WANDEREAR_MONGO_URI to a free MongoDB Atlas cluster instead.
+#
+# Want persistence on Render? Upgrade to a paid plan and re-add:
+#   plan: starter
+#   disk: {name: postcards, mountPath: /data, sizeGB: 1}
 services:
   - type: web
     name: wanderear-gallery
     runtime: docker
-    plan: starter
-    region: oregon
+    plan: free
     dockerContext: .
     dockerfilePath: ./Dockerfile
     healthCheckPath: /healthz
@@ -29,7 +33,3 @@ services:
       # demo gallery. If set, sync with: WANDEREAR_SYNC_TOKEN=... wanderear sync <url>
       - key: WANDEREAR_SYNC_TOKEN
         sync: false
-    disk:
-      name: postcards
-      mountPath: /data
-      sizeGB: 1
