@@ -27,6 +27,9 @@ data/models/
 
 # Local planning docs are not published
 docs/
+
+# Tooling artifacts
+.agents/
 DEPLOY.md
 
 # OS

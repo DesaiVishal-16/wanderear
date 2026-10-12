@@ -14,7 +14,7 @@ services:
     plan: starter
     region: oregon
     dockerContext: .
-    dockerfilePath: ./deploy/Dockerfile
+    dockerfilePath: ./Dockerfile
     healthCheckPath: /healthz
     autoDeploy: true
     envVars:

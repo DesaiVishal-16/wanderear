@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-.PHONY: help install dev test lint listen serve gallery docker docker-run clean
+.PHONY: help install dev test lint listen serve gallery docker docker-run tunnel clean
 
 help:
 	@echo "make install    - install package (editable)"
@@ -11,6 +11,7 @@ help:
 	@echo "make gallery    - build the static HTML gallery"
 	@echo "make docker     - build the gallery image"
 	@echo "make docker-run - run the gallery image locally"
+	@echo "make tunnel     - expose the local gallery on a public URL (no account)"
 	@echo "make clean      - remove build/test caches"
 
 install:
@@ -35,10 +36,13 @@ gallery:
 	wanderear gallery
 
 docker:
-	docker build -f deploy/Dockerfile -t wanderear .
+	docker build -f Dockerfile -t wanderear .
 
 docker-run: docker
 	docker run --rm -p 8000:8000 -e HOST=0.0.0.0 wanderear
+
+tunnel:
+	scripts/tunnel.sh
 
 clean:
 	rm -rf build dist *.egg-info .pytest_cache .ruff_cache

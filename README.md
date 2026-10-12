@@ -135,8 +135,9 @@ wanderear/
 ├── web/                     # interactive app + optional hosted gallery
 │   ├── index.html · app.js · style.css
 │   └── server.py            # /api/analyze · /api/search · sync endpoints
-├── deploy/                  # Dockerfile + docker-compose
+├── Dockerfile               # container image (runs on any host)
 ├── render.yaml              # Render Blueprint (hosted gallery)
+├── deploy/                  # docker-compose
 ├── data/field_guide/        # bundled offline nature glossary
 ├── docs/                    # architecture, plan, tasks, services (local)
 └── tests/
@@ -145,18 +146,70 @@ wanderear/
 ## Deploy the hosted gallery
 
 The optional gallery (what `wanderear sync` pushes to) is a single Docker
-service. Render is the recommended host; `render.yaml` is a ready-to-use
-Blueprint with a persistent disk for postcards.
+service built from the root [`Dockerfile`](Dockerfile).
 
 ```bash
 # run it locally in Docker
-docker compose -f deploy/docker-compose.yml up --build     # → http://127.0.0.1:8000
+docker compose -f deploy/docker-compose.yml up --build   # → http://127.0.0.1:8000
+
+# or expose your local gallery on a public URL (no account, no card)
+make serve      # terminal 1
+make tunnel     # terminal 2 → prints a public https:// URL
 ```
 
-For Render (plus optional MongoDB Atlas and Sentry), see **[DEPLOY.md](DEPLOY.md)**.
+Free, **no-credit-card** hosts: **Koyeb** (no sleep), **Back4app Containers**,
+**SnapDeploy**. Render needs a card for web services (static sites are card-free)
+and Hugging Face Docker Spaces became paid in July 2026.
+
+### Deploy free without a card
+
+The root [`Dockerfile`](Dockerfile) works on any container host. It binds
+`0.0.0.0` and follows the platform's `PORT` env var.
+
+**Koyeb — free, no sleep, usually no card**
+
+1. Sign up at https://app.koyeb.com with GitHub.
+2. **Create Service → GitHub** → pick `DesaiVishal-16/wanderear`.
+3. Builder: **Dockerfile** (auto-detected at the repo root).
+4. Instance: the free instance (Frankfurt or Washington, D.C.).
+5. Port **8000**, health check path `/healthz`.
+6. Optional secret `WANDEREAR_SYNC_TOKEN` to lock the write endpoints.
+7. Deploy → `https://<app>-<org>.koyeb.app`.
+
+```bash
+curl https://<app>-<org>.koyeb.app/healthz
+WANDEREAR_SYNC_TOKEN=<secret> wanderear sync https://<app>-<org>.koyeb.app
+```
+
+**Back4app Containers — free, explicitly no card**
+
+1. Sign up at https://www.back4app.com and install the *Back4app Containers*
+   GitHub app for `wanderear`.
+2. **Create app → Containers**: branch `main`, root `/`, autodeploy on.
+3. Env: `HOST=0.0.0.0`, `PORT=8000`, optional `WANDEREAR_SYNC_TOKEN`.
+4. Deploy → `https://<app>-<id>.b4a.run`.
+
+**Local + tunnel — instant, zero accounts**
+
+```bash
+make serve      # terminal 1 → http://127.0.0.1:8000
+make tunnel     # terminal 2 → prints a public https:// URL
+```
+
+`scripts/tunnel.sh` uses `cloudflared` if installed, otherwise a free
+`localhost.run` SSH tunnel. The URL lives while your machine and the tunnel do.
+
+**Render (needs a card on file)**
+
+`render.yaml` is a Blueprint with a persistent disk: Dashboard → **New →
+Blueprint** → pick the repo → Apply. Free tier is ephemeral; `plan: starter`
+supports the disk at `/data`.
+
+> Free hosts use ephemeral storage, so postcards reset on redeploy. For durable
+> postcards, point `WANDEREAR_MONGO_URI` at a free MongoDB Atlas cluster (no
+> card) — see [`src/wanderear/atlas.py`](src/wanderear/atlas.py).
 
 ## Docs
-- [Deployment guide](DEPLOY.md)
 - [Architecture](docs/ARCHITECTURE.md)
 - [Implementation plan](docs/PLAN.md)
 - [Task checklist](docs/TASKS.md)
