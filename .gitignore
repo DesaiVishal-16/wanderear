@@ -27,6 +27,7 @@ data/models/
 
 # Local planning docs are not published
 docs/
+DEPLOY.md
 
 # OS
 .DS_Store
